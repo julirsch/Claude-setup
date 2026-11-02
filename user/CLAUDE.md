@@ -7,6 +7,7 @@ correcting Claude on the same thing twice. Project facts go in the project's CLA
 - Before saying a change is done, run the project's check command (tests, typecheck or lint) and report the real result.
 - If a request is ambiguous and the wrong guess would be costly, ask one short question. Otherwise pick a sensible default and say which you picked.
 - If I name a resource to use (file, folder, repo, site, post, tool, service) and you can't access it, stop and tell me right away. Then work on getting access: find exactly what blocks it and what I need to do. Don't continue without it or report it only as a limitation.
+- Prefer general, durable solutions over cheap workarounds. A one-off workaround is fine only for a clearly isolated, annoying task; judge each task, and say which you chose and why.
 - Prefer the smallest change that solves the problem. Don't refactor unrelated code or add dependencies without saying why.
 - Prefer existing command-line tools (gh, git, jq, the project's scripts) over writing new helpers.
 - Commit only when I ask. Never force-push to a shared branch.
