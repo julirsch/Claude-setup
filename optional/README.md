@@ -5,7 +5,11 @@ Install at **project scope** whenever the add-on only matters for some projects,
 work pays nothing. After adding anything, run `/context` (or `/skill-doctor` for skills) to see the real cost.
 
 Everything here was checked on 2026-11-02 against Claude Code v2.1.316, Anthropic's official plugin
-marketplace, and the source repos. The two scripts were run against the real repos.
+marketplace, and the source repos. `skill-index` was run against the real repos.
+
+**Already installed by default** (by `install.sh`, in the `toolkit` index, ~83 tokens/turn for all four):
+`systematic-debugging`, `pdf`, `xlsx`, `skill-creator`. Any skill you add later goes through
+`~/.claude/bin/skill-index` automatically; a guard hook and a CLAUDE.md rule make sure of it.
 
 ## Menu
 
@@ -13,8 +17,8 @@ marketplace, and the source repos. The two scripts were run against the real rep
 |---|---|---|
 | [Python code intelligence](#python-code-intelligence-pyright-lsp) | small (verify with `/context`) | You write Python. Anthropic's cost docs recommend LSP over grep-and-read exploration. |
 | [Reviewer subagent](#reviewer-subagent) | ~40 tokens | You want a second opinion beyond the built-in `/code-review` |
-| [Cherry-picked skills](#cherry-picked-skills) | 20–110 tokens each | A specific procedure keeps coming up |
-| [Blender (94 guides, as one index skill)](#blender) | **~36 tokens** (vs ~4,000 as a plugin) | You work in Blender. Project scope. |
+| [More skills](#more-skills) | ~5–10 tokens each (one line in an index) | A specific procedure keeps coming up |
+| [Blender (94 guides, as one index skill)](#blender) | **~15–36 tokens** (vs ~4,000 as a plugin) | You work in Blender. Project scope. |
 | [Unreal Engine](#unreal-engine) | ~750 tokens, Unreal projects only | You work in Unreal. Project scope. |
 | [Playwright browser MCP](#playwright) | tool names only (schemas deferred) | You build or test web UIs. Project scope. |
 
@@ -31,7 +35,7 @@ The listing is capped at 1% of the context window (`skillListingBudgetFraction`,
 Past that cap, descriptions get shortened, which makes skills trigger less reliably. There is no
 built-in on-demand loading for installed skills, so you have three levers, cheapest first:
 
-1. **Index skill (best for big bundles).** `make-skill-index.sh` turns a bundle into one skill: a
+1. **Index skill (the default here).** `skill-index` files skills into one index skill: a
    ~1-line description that's always in context, plus a table of guides read only when relevant, plus
    the guides themselves (renamed `GUIDE.md` so they're not registered individually). Claude still
    picks guides on its own. Tested: one registered skill, all links intact, and Claude picked the right
@@ -72,22 +76,24 @@ mkdir -p ~/.claude/agents && cp optional/agents/reviewer.md ~/.claude/agents/
 Use it by asking "have the reviewer check this". `/code-review` already covers the common case, so
 skip this if that's enough.
 
-## Cherry-picked skills
-`add-skill.sh` copies one skill from a GitHub repo. It lists any bundled code for you to review and runs nothing.
+## More skills
+You can just ask Claude ("add the docx skill from anthropics/skills", "make me a skill for X"). It will
+use `skill-index`. Or run it yourself. It lists any bundled code for review and runs nothing:
 ```bash
-optional/add-skill.sh obra/superpowers skills/systematic-debugging   # ~23 tokens: root cause before fixing
+~/.claude/bin/skill-index add anthropics/skills skills/docx --tag "Word documents"
 ```
 ```bash
-optional/add-skill.sh anthropics/skills skills/pdf                   # ~110 tokens: reading papers and supplementary PDFs
+~/.claude/bin/skill-index add ./my-draft-skill --tag "when to use it" --group lab   # your own skill; --group keeps related ones together
 ```
 ```bash
-optional/add-skill.sh anthropics/skills skills/xlsx --project        # ~240 tokens: only where you work with spreadsheets
+~/.claude/bin/skill-index list
 ```
-```bash
-optional/add-skill.sh anthropics/skills skills/skill-creator         # only while you're writing your own skills
-```
-`systematic-debugging` mentions two other superpowers skills you won't have. That's harmless.
-Remove a skill with `rm -rf ~/.claude/skills/<name>`.
+`--project` puts a skill in this repo's `.claude/skills` instead of your user folder. `remove <group> <name>`
+deletes one, `adopt <name>` moves an existing standalone skill into an index, and `rebuild` refreshes the
+index after you edit a guide. Run `skill-index --help` for everything.
+
+A skill that should trigger on its own very reliably can stay standalone: edit it directly or ask Claude
+to. The guard only blocks *creating* new standalone skills.
 
 ## Blender
 Source: [arjun988/blender-skills](https://github.com/arjun988/blender-skills) (MIT, 94 skills, Markdown only, no code).
@@ -98,12 +104,13 @@ MCP server yourself.
 
 In your Blender project:
 ```bash
-~/path/to/claude-setup/optional/make-skill-index.sh arjun988/blender-skills .claude/skills blender "Index of 94 Blender guides (modeling, materials, rigging, VFX, export pipelines, art styles, Blender MCP). Use for any Blender or 3D asset task." --project
+~/.claude/bin/skill-index bundle arjun988/blender-skills .claude/skills blender "Index of 94 Blender guides (modeling, materials, rigging, VFX, export pipelines, art styles, Blender MCP). Use for any Blender or 3D asset task." --project
 ```
 ```bash
 cp ~/path/to/claude-setup/optional/project-settings/blender.mcp.json .mcp.json
 ```
-Drop `--project` to install the index for all projects instead (~36 tokens everywhere).
+Drop `--project` to install the index for all projects instead (~36 tokens everywhere). Or just ask
+Claude to "add the Blender skills from arjun988/blender-skills".
 Re-run with `--force` to update (the old copy is moved to `.claude/skill-backups/`).
 
 To let Claude drive Blender, use the MCP server [mcp-for-blender](https://github.com/ahujasid/mcp-for-blender)

@@ -22,7 +22,7 @@ and remove it when it stops paying for itself. Every always-loaded token taxes e
 |---|---|---|
 | Claude gets the same project fact wrong twice | A line in the project `CLAUDE.md` | Staying under 200 lines (10–40 is better); no architecture tours |
 | A rule must never be broken (and Claude keeps breaking it) | A `command` hook or a `deny` rule | Using hooks only for hard rules; preference hooks get deleted |
-| You paste the same multi-step procedure three times | A skill (`.claude/skills/<name>/SKILL.md`) | A short, specific description; `disable-model-invocation: true` for anything with side effects (deploy, release), which also keeps its description out of context |
+| You paste the same multi-step procedure three times | A skill, via `skill-index add` (it goes into an index automatically) | A short, specific description; `disable-model-invocation: true` for anything with side effects (deploy, release), which also keeps its description out of context |
 | You keep copying data from a system Claude can't reach | An MCP server | Prefer a CLI (`gh`, `aws`, `gcloud`) when one exists; disable unused servers in `/mcp` |
 | A side task floods the conversation with output, or you want an independent review | A subagent (`.claude/agents/<name>.md`) | A one-line description, minimal `tools:`, `model: haiku` for simple lookups |
 | Rules apply only to part of the repo | `.claude/rules/*.md` with `paths:` frontmatter | Putting must-survive-compaction rules in the root CLAUDE.md instead |
@@ -31,7 +31,7 @@ and remove it when it stops paying for itself. Every always-loaded token taxes e
 Ready-made, tested options for each row are in `optional/README.md`.
 
 ## 3. Skip (unless measured otherwise)
-- Wholesale skill or agent bundles (e.g. 70+ agents or 300+ skills). Cherry-pick one (`optional/add-skill.sh`) or turn the bundle into one index skill (`optional/make-skill-index.sh`), then check `/context` before and after.
+- Wholesale skill or agent bundles (e.g. 70+ agents or 300+ skills). Add single skills or whole bundles with `~/.claude/bin/skill-index` (the default here), then check `/context` before and after.
 - Mandatory-workflow frameworks for small tasks. Their ceremony costs more than it saves.
 - Subagents "to protect context" or "for a better answer". 1M windows plus auto-compaction make this rarely necessary.
 - Agent teams (about 7× tokens) and `/batch` dynamic workflows, except for genuinely large parallel jobs.

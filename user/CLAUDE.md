@@ -10,6 +10,10 @@ correcting Claude on the same thing twice. Project facts go in the project's CLA
 - Prefer existing command-line tools (gh, git, jq, the project's scripts) over writing new helpers.
 - Commit only when I ask. Never force-push to a shared branch.
 
+## Skills
+- Add or create skills only through `~/.claude/bin/skill-index` (see `--help`). It files each skill as a guide behind an index skill, so it costs almost nothing until used.
+- For a new skill, draft its folder in a temp directory, then run `skill-index add <dir> --tag "<when to use it>"`. For a collection, prefer `skill-index bundle` over installing a skill-heavy plugin.
+
 ## About me
 <!-- Fill in only things Claude can't infer from the code. Delete the placeholders you don't use. -->
 <!-- - Primary languages/stacks: ... -->
