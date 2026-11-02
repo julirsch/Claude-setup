@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(<your test command> *)",
+      "Bash(<your lint command> *)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=$(jq -r '.tool_input.file_path // empty'); [ -n \"$f\" ] && <your formatter, e.g. npx prettier --write --ignore-unknown> \"$f\" >/dev/null 2>&1; exit 0"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "<your FAST check, e.g. pnpm tsc --noEmit> 1>&2 || exit 2"
+          }
+        ]
+      }
+    ]
+  }
+}
