@@ -17,11 +17,13 @@ STAMP=$(date +%Y%m%d-%H%M%S)
 BACKUP="$DEST/backups/lean-setup-$STAMP"
 
 # Default skills, each stored as a guide in the "toolkit" index (~1 line of context in total).
+# Format: <owner/repo, or . for this repo>|<path to skill>|<when to use it>
 DEFAULT_SKILLS=(
   "obra/superpowers|skills/systematic-debugging|finding the root cause of bugs and test failures before fixing"
   "anthropics/skills|skills/pdf|reading, extracting from, filling or creating PDFs"
   "anthropics/skills|skills/xlsx|reading, editing or creating spreadsheets (.xlsx, .csv)"
   "anthropics/skills|skills/skill-creator|writing, testing or improving skills"
+  ".|skills/x-research|searching X/Twitter for free and reading x.com posts and articles"
 )
 
 command -v jq >/dev/null || { echo "jq is required (brew install jq / apt install jq)"; exit 1; }
@@ -88,6 +90,7 @@ if (( SKILLS )); then
     IFS='|' read -r repo path tag <<<"$entry"; name=${path##*/}
     if [[ -d $DEST/skills/toolkit/guides/$name ]]; then echo "skill '$name' already installed"; continue; fi
     if (( DRY )); then echo "[dry-run] skill-index add $repo $path --tag \"$tag\""; continue; fi
+    [[ $repo == . ]] && repo="$ROOT"   # skills shipped in this repo
     CLAUDE_HOME="$DEST" "$DEST/bin/skill-index" add "$repo" "$path" --tag "$tag" | grep -E "^(added|index|fetching)" \
       || echo "warning: could not fetch '$name' (offline?). Re-run ./install.sh later to retry."
   done

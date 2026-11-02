@@ -18,7 +18,7 @@ plus a tiny personal CLAUDE.md. Everything else is added when a specific problem
 | `user/bin/skill-index` | Files every skill as a guide behind an index skill, so it's read only when needed | n/a |
 | `user/bin/xread` | Reads an X post as JSON via public endpoints; exits with an ERROR if X is blocked | n/a |
 | `user/hooks/guard-skills.sh` | Blocks creating standalone skills; tells Claude to use `skill-index` instead | 0 |
-| Default skills (fetched at install) | `systematic-debugging`, `pdf`, `xlsx`, `skill-creator`, all in one `toolkit` index | ~83 tokens total |
+| Default skills (fetched at install) | `systematic-debugging`, `pdf`, `xlsx`, `skill-creator`, `x-research` (free X search: `site:x.com` web search + `xread`), all in one `toolkit` index | ~100 tokens total |
 | `project-template/CLAUDE.md` | Skeleton: commands, conventions, gotchas | per project |
 | `project-template/.claude/settings.example.json` | Opt-in formatter + Stop-hook check (fill in placeholders) | 0 |
 | `PLAYBOOK.md` | Habits, a "when to add what" table, what to skip, monthly audit | n/a |

@@ -10,8 +10,23 @@ id=$(grep -oE '[0-9]{8,}' <<<"$arg" | tail -1); [[ -n $id ]] || { echo "ERROR: n
 url=${arg}; [[ $url == http* ]] || url="https://x.com/i/status/$id"
 tried=()
 
+# X Articles (long-form): the post itself is only a link, so print the article from the mirror.
+article() {
+  local a; a=$(curl -sfSL -m 20 "https://api.fxtwitter.com/status/$id" 2>/dev/null) || return 1
+  jq -e '.tweet.article.content.blocks' >/dev/null 2>&1 <<<"$a" || return 1
+  jq -r '.tweet | "# \(.article.title)\nby @\(.author.screen_name) · \(.created_at) · \(.likes) likes · \(.views) views\n",
+    (.article.content.blocks[] | (if .type=="header-one" or .type=="header-two" then "\n## "
+      elif .type=="unordered-list-item" then "- " elif .type=="ordered-list-item" then "1. "
+      elif .type=="blockquote" then "> " elif .type=="atomic" then "[image]" else "" end) + .text),
+    "\nImages:", ([.article.cover_media.media_info.original_img_url] + [.article.media_entities[]?.media_info.original_img_url // empty] | .[] | "- \(.)")' <<<"$a"
+}
+
 r=$(curl -sfS -m 20 "https://cdn.syndication.twimg.com/tweet-result?id=$id&token=a" 2>/dev/null) \
   && jq -e '.text' >/dev/null 2>&1 <<<"$r" && {
+  if jq -e '[.entities.urls[]?.expanded_url] | any(test("/i/article/"))' >/dev/null 2>&1 <<<"$r"; then
+    article && exit 0
+    echo "note: this post links to an X Article; its text could not be fetched (api.fxtwitter.com)" >&2
+  fi
   jq '{source:"syndication", id:.id_str, author:.user.screen_name, name:.user.name, date:.created_at, text:.text,
        links:[.entities.urls[]?.expanded_url], media:[.mediaDetails[]?|{type, url:(.media_url_https), video:([.video_info.variants[]?.url]|last)}],
        quoted:(.quoted_tweet|if . then {author:.user.screen_name, text} else null end)}' <<<"$r"; exit 0; }
