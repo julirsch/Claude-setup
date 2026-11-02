@@ -18,13 +18,15 @@ plus a tiny personal CLAUDE.md. Everything else is added when a specific problem
 | `project-template/CLAUDE.md` | Skeleton: commands, conventions, gotchas | per project |
 | `project-template/.claude/settings.example.json` | Opt-in formatter + Stop-hook check (fill in placeholders) | 0 |
 | `PLAYBOOK.md` | Habits, a "when to add what" table, what to skip, monthly audit | n/a |
+| `optional/` | Off-by-default add-ons: Python LSP, reviewer subagent, cherry-picked skills, Blender (as a ~36-token index skill), Unreal, Playwright, and scripts to cherry-pick or index any skill bundle | only what you install |
 
-Deliberately **not** included: MCP servers, subagents, skill or plugin bundles, model/effort overrides.
+Not installed by default: MCP servers, subagents, skill or plugin bundles, model/effort overrides.
+They're in `optional/README.md`, each with its per-turn cost and when it's worth it.
 Model, effort and auto mode stay at their defaults; change them interactively with `/model` and `/effort`.
 
 ## Install (on your own machine)
 ```bash
-git clone <this repo> && cd claude-setup
+git clone https://github.com/julirsch/claude-setup.git && cd claude-setup
 ./install.sh --dry-run   # preview
 ./install.sh             # backs up, merges; never overwrites an existing CLAUDE.md
 ```

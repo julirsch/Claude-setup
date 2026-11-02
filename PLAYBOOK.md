@@ -28,8 +28,10 @@ and remove it when it stops paying for itself. Every always-loaded token taxes e
 | Rules apply only to part of the repo | `.claude/rules/*.md` with `paths:` frontmatter | Putting must-survive-compaction rules in the root CLAUDE.md instead |
 | A second repo needs the same setup | A plugin | Packaging only what you've actually used |
 
+Ready-made, tested options for each row are in `optional/README.md`.
+
 ## 3. Skip (unless measured otherwise)
-- Wholesale skill or agent bundles (e.g. 70+ agents or 300+ skills). Cherry-pick one, then check `/context` before and after.
+- Wholesale skill or agent bundles (e.g. 70+ agents or 300+ skills). Cherry-pick one (`optional/add-skill.sh`) or turn the bundle into one index skill (`optional/make-skill-index.sh`), then check `/context` before and after.
 - Mandatory-workflow frameworks for small tasks. Their ceremony costs more than it saves.
 - Subagents "to protect context" or "for a better answer". 1M windows plus auto-compaction make this rarely necessary.
 - Agent teams (about 7× tokens) and `/batch` dynamic workflows, except for genuinely large parallel jobs.
