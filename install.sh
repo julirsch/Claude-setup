@@ -32,7 +32,7 @@ backup() { [[ -e $1 ]] && { run mkdir -p "$BACKUP"; run cp -p "$1" "$BACKUP/"; e
 run mkdir -p "$DEST/hooks" "$DEST/bin"
 
 # 1. Scripts (overwrite our own files only; back up if they differ).
-for f in statusline.sh hooks/notify.sh hooks/guard-skills.sh bin/skill-index; do
+for f in statusline.sh hooks/notify.sh hooks/guard-skills.sh bin/skill-index bin/xread; do
   if [[ -e $DEST/$f ]] && ! cmp -s "$SRC/$f" "$DEST/$f"; then backup "$DEST/$f"; fi
   run install -m 755 "$SRC/$f" "$DEST/$f"; echo "installed $DEST/$f"
 done

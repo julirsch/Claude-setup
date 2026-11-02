@@ -16,6 +16,7 @@ plus a tiny personal CLAUDE.md. Everything else is added when a specific problem
 | `user/statusline.sh` | `Opus 5.5 (medium) · ctx 23% · 5h 41% · $0.82 · repo (branch)`, colour-coded | 0 |
 | `user/hooks/notify.sh` | Desktop alert when Claude needs input (macOS/Linux, bell fallback) | 0 |
 | `user/bin/skill-index` | Files every skill as a guide behind an index skill, so it's read only when needed | n/a |
+| `user/bin/xread` | Reads an X post as JSON via public endpoints; exits with an ERROR if X is blocked | n/a |
 | `user/hooks/guard-skills.sh` | Blocks creating standalone skills; tells Claude to use `skill-index` instead | 0 |
 | Default skills (fetched at install) | `systematic-debugging`, `pdf`, `xlsx`, `skill-creator`, all in one `toolkit` index | ~83 tokens total |
 | `project-template/CLAUDE.md` | Skeleton: commands, conventions, gotchas | per project |

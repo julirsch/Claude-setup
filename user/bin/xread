@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# xread: print an X post (text, author, date, links, media) as JSON, trying public endpoints in turn.
+#   xread https://x.com/<user>/status/<id>   |   xread <id>
+# Needs these hosts allowed in the network policy (any one is enough):
+#   cdn.syndication.twimg.com (embed data), api.fxtwitter.com (mirror), publish.twitter.com (oEmbed, text only)
+# Exits non-zero with a clear ERROR if none is reachable, so callers stop instead of guessing.
+set -uo pipefail
+arg=${1:?usage: xread <post-url-or-id>}
+id=$(grep -oE '[0-9]{8,}' <<<"$arg" | tail -1); [[ -n $id ]] || { echo "ERROR: no post id in '$arg'" >&2; exit 2; }
+url=${arg}; [[ $url == http* ]] || url="https://x.com/i/status/$id"
+tried=()
+
+r=$(curl -sfS -m 20 "https://cdn.syndication.twimg.com/tweet-result?id=$id&token=a" 2>/dev/null) \
+  && jq -e '.text' >/dev/null 2>&1 <<<"$r" && {
+  jq '{source:"syndication", id:.id_str, author:.user.screen_name, name:.user.name, date:.created_at, text:.text,
+       links:[.entities.urls[]?.expanded_url], media:[.mediaDetails[]?|{type, url:(.media_url_https), video:([.video_info.variants[]?.url]|last)}],
+       quoted:(.quoted_tweet|if . then {author:.user.screen_name, text} else null end)}' <<<"$r"; exit 0; }
+tried+=("cdn.syndication.twimg.com")
+
+r=$(curl -sfS -m 20 "https://api.fxtwitter.com/status/$id" 2>/dev/null) \
+  && jq -e '.tweet.text' >/dev/null 2>&1 <<<"$r" && {
+  jq '.tweet | {source:"fxtwitter", id, author:.author.screen_name, name:.author.name, date:.created_at, text,
+       links:[.raw_text.facets[]?|select(.type=="url")|.replacement], media:[.media.all[]?|{type, url}],
+       quoted:(.quote|if . then {author:.author.screen_name, text} else null end)}' <<<"$r"; exit 0; }
+tried+=("api.fxtwitter.com")
+
+r=$(curl -sfS -m 20 -G "https://publish.twitter.com/oembed" --data-urlencode "url=$url" --data omit_script=1 2>/dev/null) \
+  && jq -e '.html' >/dev/null 2>&1 <<<"$r" && {
+  jq '{source:"oembed", author:.author_name, author_url, text:(.html|gsub("<[^>]+>";" ")|gsub("&mdash;";"—")|gsub("\\s+";" "))}' <<<"$r"; exit 0; }
+tried+=("publish.twitter.com")
+
+echo "ERROR: could not read X post $id. Tried: ${tried[*]}. Allow at least one of these hosts in the environment's network settings." >&2
+exit 1
